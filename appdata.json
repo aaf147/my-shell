@@ -1,0 +1,5 @@
+[
+    { "id": 0, "name": "Cancel", "command": "true" },
+    { "id": 1, "name": "Zen Browser", "command": "zen-browser" },
+    { "id": 2, "name": "VS Code", "command": "code" }
+]
