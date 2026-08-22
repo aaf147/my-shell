@@ -25,9 +25,9 @@ PanelWindow {
     property int panelheight: 40
     property int panelwidth: 200
     property int expandedpanelheight: 40
-    property int expandedpanelwidth: 800
+    property int expandedpanelwidth: listData.length * 35 + 10
 	property bool panelVisible: true
-    property int allIndex: 20
+    property int allIndex: listData.length
     property int currentIndex: 0
 
     aboveWindows: true
@@ -39,7 +39,7 @@ PanelWindow {
 
     color: "transparent"
 
-    implicitWidth: expandedpanelwidth
+    implicitWidth: expandedpanelwidth > panelwidth ? expandedpanelwidth : panelwidth
     implicitHeight: expandedpanelheight + panel.margin
 
     GlobalShortcut {
@@ -105,7 +105,7 @@ PanelWindow {
         anchors.topMargin: panelExpanded ? panel.margin : (panelVisible ? panel.margin : panel.margin - panel.panelheight - 2)
 
         width: panel.panelExpanded ? panel.expandedpanelwidth : panel.panelwidth
-        height: panel.panelExpanded ? panel.expandedpanelheight : panel.panelheight
+        height: panel.panelExpanded ? panel.expandedpanelheight + listData[panel.currentIndex].extraHeight : panel.panelheight
         color: Colors.md3.surface
         border.color: Qt.alpha(Colors.md3.outline, 0.3)
         border.width: 1
