@@ -40,7 +40,7 @@ PanelWindow {
     color: "transparent"
 
     implicitWidth: expandedpanelwidth > panelwidth ? expandedpanelwidth : panelwidth
-    implicitHeight: expandedpanelheight + panel.margin
+    implicitHeight: 1000
 
     GlobalShortcut {
         appid: "my_quickshell"
@@ -48,7 +48,6 @@ PanelWindow {
         description: "Expand custom panel"
 
         onPressed: {
-            panel.currentIndex = 0
             panel.panelExpanded = true
             console.log("Panel expanded")
         }
@@ -57,6 +56,7 @@ PanelWindow {
             panel.panelExpanded = false
             launchedApp.command = [listData[panel.currentIndex].command]
             launchedApp.running = true
+            panel.currentIndex = 0
             console.log("Panel collapsed")
         }
     }
@@ -77,8 +77,8 @@ PanelWindow {
         description: "Scroll up"
 
         onPressed: {
-            console.log("Scrolled up")
-            panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex
+            console.log("Scrolled up") 
+            panelExpanded ? panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex : true
         }
     }
     
@@ -89,7 +89,7 @@ PanelWindow {
 
         onPressed: {
             console.log("Scrolled down")
-            panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex
+            panelExpanded ? panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex : true
         }
     }
 	
@@ -114,7 +114,7 @@ PanelWindow {
 
         Behavior on height {
             NumberAnimation {
-                duration: 350
+                duration: 200
                 easing.type: Easing.OutCirc
             }
         }
@@ -134,7 +134,8 @@ PanelWindow {
             id: cursor
             height: 25
             width: 25
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 7.5
             anchors.left: parent.left
             anchors.leftMargin: 10 + currentIndex * 35
             color: Colors.md3.primary
