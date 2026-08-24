@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell.Io
 import QtQuick.Effects
 import Quickshell.Hyprland
+import QtQuick.Layouts
 
 
 PanelWindow {
@@ -109,11 +110,12 @@ PanelWindow {
         color: Colors.md3.surface
         border.color: Qt.alpha(Colors.md3.outline, 0.3)
         border.width: 1
-
+        clip: true
         radius: panel.panelheight / 2
 
         Behavior on height {
             NumberAnimation {
+                id: heightAnim
                 duration: 200
                 easing.type: Easing.OutCirc
             }
@@ -143,8 +145,53 @@ PanelWindow {
             visible: panel.panelExpanded
             Behavior on anchors.leftMargin {
                 NumberAnimation {
+                    id: cursorAnim
                     duration: 180
                     easing.type: Easing.OutCubic
+                }
+            }
+        }
+
+        Text {
+            text: listData[panel.currentIndex].extraHeight == 0 ? text : listData[panel.currentIndex].name
+            visible: true
+            anchors.top: parent.top
+            anchors.topMargin: 40
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenterOffset: 0
+            color: Colors.md3.on_surface
+            font.pointSize: 12
+            font.bold: true
+        }
+        
+        RowLayout {
+            spacing: 10
+            anchors.top: parent.top
+            anchors.topMargin: 7.5
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            Repeater {
+                model: listData.length
+                Item {
+                    width: 25
+                    height: 25
+                    Image {
+                        anchors.centerIn: parent
+                        source: listData[index].icon
+                        width: 20
+                        height: 20
+                        fillMode: Image.PreserveAspectFit
+                        visible: panel.panelExpanded
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        anchors.verticalCenterOffset: -4
+                        text: listData[index].nfIcon
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pointSize: 25
+                        visible: panel.panelExpanded
+                        color: currentIndex === index && !cursorAnim.running ? Colors.md3.on_primary : Colors.md3.on_surface
+                    }
                 }
             }
         }
