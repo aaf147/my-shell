@@ -23,6 +23,7 @@ PanelWindow {
     }
     property int margin: 0
     property bool panelExpanded: false
+    property bool panelSemiExpanded: false
     property int panelheight: 40
     property int panelwidth: 200
     property int expandedpanelheight: 40
@@ -49,12 +50,17 @@ PanelWindow {
         description: "Expand custom panel"
 
         onPressed: {
-            panel.panelExpanded = true
+            if (panelVisible) {
+                panelExpanded = true
+            } else {
+                panelSemiExpanded = true
+            }
             console.log("Panel expanded")
         }
 
         onReleased: {
             panel.panelExpanded = false
+            panel.panelSemiExpanded = false
             launchedApp.command = [listData[panel.currentIndex].command]
             launchedApp.running = true
             panel.currentIndex = 0
@@ -79,7 +85,12 @@ PanelWindow {
 
         onPressed: {
             console.log("Scrolled up") 
-            panelExpanded ? panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex : true
+            if (panelExpanded) {
+                panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex;
+            } else if (panelSemiExpanded) {
+                panelExpanded = true;
+                panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex;
+            }
         }
     }
     
@@ -90,10 +101,22 @@ PanelWindow {
 
         onPressed: {
             console.log("Scrolled down")
-            panelExpanded ? panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex : true
+            if (panelExpanded) {
+                panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex;
+            } else if (panelSemiExpanded) {
+                panelExpanded = true;
+                panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex;
+            }
         }
     }
-	
+    
+    onCurrentIndexChanged: {
+        if (currentIndex == 0) {
+            panelExpanded = false;
+            panelSemiExpanded = true;
+        }
+    }
+
 	mask: Region {
         item: panelSurface
     }
@@ -103,7 +126,12 @@ PanelWindow {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: panelExpanded ? panel.margin : (panelVisible ? panel.margin : panel.margin - panel.panelheight - 2)
+        anchors.topMargin: if (panel.panelExpanded || panel.panelSemiExpanded) {
+            panel.margin
+        } else {
+            panelVisible ? panel.margin : panel.margin - panel.panelheight - 2
+        }
+
 
         width: panel.panelExpanded ? panel.expandedpanelwidth : panel.panelwidth
         height: panel.panelExpanded ? panel.expandedpanelheight + listData[panel.currentIndex].extraHeight : panel.panelheight
@@ -112,7 +140,30 @@ PanelWindow {
         border.width: 1
         clip: true
         radius: panel.panelheight / 2
-
+        
+        Text {
+            id: clock
+            anchors.centerIn: parent
+            anchors.horizontalCenterOffset: 15
+            text: Qt.formatDateTime(new Date(), "M/d ddd hh:mm")
+            color: Colors.md3.on_surface
+            font.pointSize: 12
+            font.bold: true
+            opacity: panel.panelExpanded ? 0.0 : 1.0 
+            Timer {
+                interval: 1000
+                running: true
+                repeat: true
+                onTriggered: clock.text = Qt.formatDateTime(new Date(), "M/d ddd hh:mm")
+            }
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 100
+                    easing.type: Easing.OutQuad
+                }
+            }
+        }
+        
         Behavior on height {
             NumberAnimation {
                 id: heightAnim
@@ -142,7 +193,7 @@ PanelWindow {
             anchors.leftMargin: 10 + currentIndex * 35
             color: Colors.md3.primary
             radius: 12.5
-            visible: panel.panelExpanded
+            visible: true
             Behavior on anchors.leftMargin {
                 NumberAnimation {
                     id: cursorAnim
@@ -169,7 +220,7 @@ PanelWindow {
             anchors.top: parent.top
             anchors.topMargin: 7.5
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.leftMargin: 9.5
             Repeater {
                 model: listData.length
                 Item {
@@ -181,19 +232,30 @@ PanelWindow {
                         width: 20
                         height: 20
                         fillMode: Image.PreserveAspectFit
-                        visible: panel.panelExpanded
+                        opacity: panel.panelExpanded ? 1.0 : 0.0
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 100
+                                easing.type: Easing.OutQuad
+                            }
+                        }
                     }
                     Text {
                         anchors.centerIn: parent
-                        anchors.verticalCenterOffset: -4
                         text: listData[index].nfIcon
                         font.family: "JetBrainsMono Nerd Font"
-                        font.pointSize: 25
-                        visible: panel.panelExpanded
+                        font.pointSize: 15
+                        opacity: panel.panelExpanded ? 1.0 : 0.0
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 100
+                                easing.type: Easing.OutQuad
+                            }
+                        }
                         color: currentIndex === index && !cursorAnim.running ? Colors.md3.on_primary : Colors.md3.on_surface
                     }
                 }
             }
         }
     }
-}
+} 

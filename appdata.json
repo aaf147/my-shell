@@ -3,5 +3,5 @@
     { "name": "Zen Browser", "command": "zen-browser", "extraHeight": 30, "icon": "/usr/share/icons/hicolor/256x256/apps/firefox.png" },
     { "name": "VS Code", "command": "code", "extraHeight": 30, "icon": "/usr/share/pixmaps/vscode.png" },
     { "name": "Prism Launcher", "command": "prismlauncher", "extraHeight": 30, "icon": "/usr/share/icons/hicolor/256x256/apps/org.prismlauncher.PrismLauncher.png" },
-    { "name": "Shutdown", "command": ["systemctl", "poweroff"], "extraHeight": 0, "nfIcon": "\uf011" }
+    { "name": "Shutdown", "command": "/home/aaf147/poweroff.sh", "extraHeight": 0, "nfIcon": "\uf011" }
 ]
