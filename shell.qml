@@ -22,6 +22,7 @@ PanelWindow {
         return txt ? JSON.parse(txt) : [];
     }
     property int margin: 0
+    property string panelStats: "none"
     property bool panelExpanded: false
     property bool panelSemiExpanded: false
     property int panelheight: 40
@@ -51,19 +52,18 @@ PanelWindow {
 
         onPressed: {
             if (panelVisible) {
-                panelExpanded = true
+                panelStats = "expanded"
             } else {
-                panelSemiExpanded = true
+                panelStats = "semiexpanded"
             }
             console.log("Panel expanded")
         }
 
         onReleased: {
-            panel.panelExpanded = false
-            panel.panelSemiExpanded = false
-            launchedApp.command = [listData[panel.currentIndex].command]
+            launchedApp.command = ["hyprctl", "dispatch", "hl.dsp.exec_cmd(\"" + listData[panel.currentIndex].command + "\")"]
             launchedApp.running = true
             panel.currentIndex = 0
+            panelStats = "none"
             console.log("Panel collapsed")
         }
     }
@@ -85,10 +85,10 @@ PanelWindow {
 
         onPressed: {
             console.log("Scrolled up") 
-            if (panelExpanded) {
+            if (panelStats == "expanded") {
                 panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex;
-            } else if (panelSemiExpanded) {
-                panelExpanded = true;
+            } else if (panelStats == "semiexpanded") {
+                panelStats = "expanded";
                 panel.currentIndex = (panel.currentIndex - 1 + panel.allIndex) % panel.allIndex;
             }
         }
@@ -101,10 +101,10 @@ PanelWindow {
 
         onPressed: {
             console.log("Scrolled down")
-            if (panelExpanded) {
+            if (panelStats == "expanded") {
                 panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex;
-            } else if (panelSemiExpanded) {
-                panelExpanded = true;
+            } else if (panelStats == "semiexpanded") {
+                panelStats = "expanded";
                 panel.currentIndex = (panel.currentIndex + 1) % panel.allIndex;
             }
         }
@@ -112,8 +112,7 @@ PanelWindow {
     
     onCurrentIndexChanged: {
         if (currentIndex == 0) {
-            panelExpanded = false;
-            panelSemiExpanded = true;
+            panelStats = "semiexpanded";
         }
     }
 
@@ -126,15 +125,15 @@ PanelWindow {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: if (panel.panelExpanded || panel.panelSemiExpanded) {
+        anchors.topMargin: if (panelStats == "expanded" || panelStats == "semiexpanded") { 
             panel.margin
         } else {
             panelVisible ? panel.margin : panel.margin - panel.panelheight - 2
         }
 
 
-        width: panel.panelExpanded ? panel.expandedpanelwidth : panel.panelwidth
-        height: panel.panelExpanded ? panel.expandedpanelheight + listData[panel.currentIndex].extraHeight : panel.panelheight
+        width: panelStats == "expanded" ? panel.expandedpanelwidth : panel.panelwidth
+        height: panelStats == "expanded" ? panel.expandedpanelheight + listData[panel.currentIndex].extraHeight : panel.panelheight
         color: Colors.md3.surface
         border.color: Qt.alpha(Colors.md3.outline, 0.3)
         border.width: 1
@@ -149,7 +148,7 @@ PanelWindow {
             color: Colors.md3.on_surface
             font.pointSize: 12
             font.bold: true
-            opacity: panel.panelExpanded ? 0.0 : 1.0 
+            opacity: panelStats == "expanded" ? 0.0 : 1.0 
             Timer {
                 interval: 1000
                 running: true
@@ -232,7 +231,7 @@ PanelWindow {
                         width: 20
                         height: 20
                         fillMode: Image.PreserveAspectFit
-                        opacity: panel.panelExpanded ? 1.0 : 0.0
+                        opacity: panelStats == "expanded" ? 1.0 : 0.0
                         Behavior on opacity {
                             NumberAnimation {
                                 duration: 100
@@ -245,7 +244,7 @@ PanelWindow {
                         text: listData[index].nfIcon
                         font.family: "JetBrainsMono Nerd Font"
                         font.pointSize: 15
-                        opacity: panel.panelExpanded ? 1.0 : 0.0
+                        opacity: panelStats == "expanded" ? 1.0 : 0.0
                         Behavior on opacity {
                             NumberAnimation {
                                 duration: 100
@@ -258,4 +257,4 @@ PanelWindow {
             }
         }
     }
-} 
+}
