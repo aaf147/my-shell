@@ -157,7 +157,7 @@ PanelWindow {
             color: Colors.md3.on_surface
             font.pointSize: 12
             font.bold: true
-            visible: !(panelStats == "volume" && !panelVisible || topMarginAnim.running)
+            visible: !(panelStats == "volume" && !panelVisible || cursorAnim.running)
             opacity: panelStats == "expanded" || panelStats == "volume" ? 0.0 : 1.0 
             Timer {
                 interval: 1000
