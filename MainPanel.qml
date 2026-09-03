@@ -112,7 +112,7 @@ PanelWindow {
     }
     
     onCurrentIndexChanged: {
-        if (currentIndex == 0) {
+        if (currentIndex == 0 && panelStats != "none") {
             panelStats = "semiexpanded";
         }
     }
@@ -157,7 +157,7 @@ PanelWindow {
             color: Colors.md3.on_surface
             font.pointSize: 12
             font.bold: true
-            visible: !(panelStats == "volume" && !panelVisible || cursorAnim.running)
+            visible: !(panelStats == "volume" && !panelVisible || cursorAnim.running && iconAnim.running)
             opacity: panelStats == "expanded" || panelStats == "volume" ? 0.0 : 1.0 
             Timer {
                 interval: 1000
@@ -249,6 +249,7 @@ PanelWindow {
                         opacity: panelStats == "expanded" ? 1.0 : 0.0
                         Behavior on opacity {
                             NumberAnimation {
+                                id: iconAnim
                                 duration: 100
                                 easing.type: Easing.OutQuad
                             }
