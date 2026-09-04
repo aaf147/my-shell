@@ -34,6 +34,7 @@ PanelWindow {
     property int allIndex: listData.length
     property int currentIndex: 0
     property double volume: 0
+    property alias panelSurface: panelSurface
 
     aboveWindows: true
     exclusiveZone: panelVisible ? panelheight + panel.margin - 2 : 0
@@ -172,6 +173,8 @@ PanelWindow {
                 }
             }
         }
+
+        Volume { panel: mainPanel }
         
         Behavior on height {
             NumberAnimation {
