@@ -2,14 +2,24 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire 
 
-// TODO make it that panelstats change triggers shouldShowOsd to false
-
 Item {
     property MainPanel panel
     property bool shouldShowOsd: false
+    property int volume: Math.round(panel.volume * 100)
+    property bool volumeOnRight: volume > 50
+    property bool noActivation: true
+    
+    function positionVolumeText() {
+        if (volume > 50) {    
+            volumeText.x = parent.parent.width / 6 - volumeText.width / 2
+        } else {
+            volumeText.x = parent.parent.width / 1.2 - volumeText.width / 2
+        }
+    }
 
     Component.onCompleted: {
         print(panel.panelStats)
+        positionVolumeText()
     }
     PwObjectTracker {
         objects: [ Pipewire.defaultAudioSink ]
@@ -24,47 +34,68 @@ Item {
             shouldShowOsd = false
         }
     }
+    Timer {
+        id: volumeChangeTimer
+        interval: 100
+        running: false
+        repeat: false
+        onTriggered: {
+            positionVolumeText()
+            volumeText.opacity = 1.0
+        }
+    }
+    onVolumeOnRightChanged: {
+        print(volumeOnRight)
+        volumeText.opacity = 0.0
+        volumeChangeTimer.restart()
+    }
     Connections {
 		target: Pipewire.defaultAudioSink?.audio
 
 		function onVolumeChanged() {
-            shouldShowOsd = true;
-            osdTimer.restart()
-            panel.volume = Pipewire.defaultAudioSink?.audio.volume
+            if (!noActivation) {
+                shouldShowOsd = true;
+                osdTimer.restart()
+                panel.volume = Pipewire.defaultAudioSink?.audio.volume
+            }
+            noActivation = false
 		}
 	}
     onShouldShowOsdChanged: {
         if (shouldShowOsd) {
             panel.panelStats = "volume"
+            volumeText.opacity = 1.0
+            positionVolumeText()
         } else {
             panel.panelStats = "none"
+            volumeText.opacity = 0.0
         }
     }
     Text {
         id: volumeText
-        x: Math.round(panel.volume * 100) > 50 ? parent.parent.width / 6 - width / 2 : parent.parent.width / 1.2 - width / 2
         y: parent.parent.height / 2 - height / 2
-        text: Math.round(panel.volume * 100) + "%"
+        text: volume + "%"
+        
         color: Colors.md3.on_surface
-        opacity: panel.panelStats == "volume" ? 1.0 : 0.0
         font.pointSize: 12
         font.bold: true
+        opacity: 0.0
         Behavior on opacity {
             NumberAnimation {
                 duration: 100
                 easing.type: Easing.OutQuad
             }
         }
-        Behavior on x {
-            NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutQuad
-            }
+        transform: Translate {
+            x: volume < 10 ? 5 : 0
         }
+
+
         Rectangle {
             id: volumeTextBackground
             anchors.centerIn: parent
-            width: volumeText.width + 10
+
+            width: volume < 10 ? volumeText.width + 10 : volumeText.width + 10
             height: volumeText.height + 4
             radius: height / 2
             color: Colors.md3.surface
