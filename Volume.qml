@@ -11,9 +11,9 @@ Item {
     
     function positionVolumeText() {
         if (volume > 50) {    
-            volumeText.x = parent.parent.width / 6 - volumeText.width / 2
+            volumeText.x = panel.panelwidth / 6 - volumeText.width / 2
         } else {
-            volumeText.x = parent.parent.width / 1.2 - volumeText.width / 2
+            volumeText.x = panel.panelwidth / 1.2 - volumeText.width / 2
         }
     }
 
